@@ -1,0 +1,1621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0">
+  <title>SciCalc Pro Tutorial | Advanced Web Calculator</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* CSS Variables */
+    :root {
+      --primary: #3498db;
+      --primary-dark: #2980b9;
+      --success: #2ecc71;
+      --dark: #2c3e50;
+      --light: #f8f9fa;
+      --text: #333;
+      --border: #dee2e6;
+      --card-bg: #fff;
+      --section-bg: #f8f9fa;
+    }
+
+    /* Base Styles */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      color: var(--text);
+      background-color: var(--light);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem;
+      flex: 1;
+    }
+
+    /* Fluid Typography */
+    h1, h2, h3, h4 {
+      color: var(--dark);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    h1 {
+      font-size: clamp(1.8rem, 5vw, 2.5rem);
+      text-align: center;
+      margin-bottom: 1.5rem;
+      position: relative;
+      padding-bottom: 1rem;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--success));
+      border-radius: 2px;
+    }
+
+    h2 {
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      margin: 2rem 0 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    h3 {
+      font-size: clamp(1.25rem, 3vw, 1.5rem);
+      margin: 1.5rem 0 0.75rem;
+    }
+
+    p {
+      margin: 1rem 0;
+      font-size: clamp(1rem, 2.5vw, 1.1rem);
+      color: #555;
+    }
+
+    a {
+      color: var(--primary);
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    a:hover {
+      color: var(--primary-dark);
+      text-decoration: underline;
+    }
+
+    /* Header - Responsive Navigation */
+    header {
+      background-color: var(--dark);
+      color: white;
+      padding: 1rem 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      position: relative;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .logo {
+      font-size: clamp(1.25rem, 4vw, 1.5rem);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .logo i {
+      color: var(--primary);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .nav-links a {
+      color: white;
+      font-weight: 500;
+      padding: 0.5rem;
+      white-space: nowrap;
+    }
+
+    .nav-links a:hover {
+      color: var(--success);
+      text-decoration: none;
+    }
+
+    .mobile-menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    /* Cards */
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px rgba(0,0,0,0.1);
+    }
+
+    /* Calculator Demo Section */
+    .calculator-demo {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 200px;
+      height: auto;
+      padding: 2rem 1rem;
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .calculator-demo::before {
+      content: 'Live Preview';
+      position: absolute;
+      top: 0;
+      right: 0;
+      background-color: var(--primary);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.8rem;
+      border-radius: 0 0 0 4px;
+    }
+
+    /* Calculator Styles */
+    .calculator-preview {
+      width: 340px;
+      background-color: var(--primary);
+      border-radius: 10px;
+      padding: 25px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .display-preview {
+      background-color: #f8f9fa;
+      border-radius: 5px;
+      padding: 20px;
+      margin-bottom: 20px;
+      text-align: right;
+      min-height: 100px;
+    }
+
+    .history-preview {
+      font-size: 1.1rem;
+      color: #6c757d;
+      margin-bottom: 10px;
+      min-height: 20px;
+    }
+
+    .current-preview {
+      font-size: 2.2rem;
+      font-weight: 600;
+      color: #212529;
+    }
+
+    .button-grid-preview {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+
+    .btn-preview {
+      border: none;
+      border-radius: 5px;
+      padding: 15px 0;
+      font-size: 1.2rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: all 0.2s;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .num-btn-preview {
+      background-color: #e9ecef;
+      color: #212529;
+    }
+
+    .num-btn-preview:hover {
+      background-color: #dee2e6;
+    }
+
+    .operator-btn-preview {
+      background-color: #fd7e14;
+      color: white;
+    }
+
+    .operator-btn-preview:hover {
+      background-color: #e8590c;
+    }
+
+    .equals-btn-preview {
+      background-color: #28a745;
+      color: white;
+      grid-row: span 2;
+    }
+
+    .equals-btn-preview:hover {
+      background-color: #218838;
+    }
+
+    .clear-btn-preview {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .clear-btn-preview:hover {
+      background-color: #c82333;
+    }
+
+    .func-btn-preview {
+      background-color: #17a2b8;
+      color: white;
+      font-size: 1rem;
+    }
+
+    .func-btn-preview:hover {
+      background-color: #138496;
+    }
+
+    .footer-buttons-preview {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+    }
+
+    .memory-btn-preview {
+      background-color: #6f42c1;
+      color: white;
+      font-size: 1rem;
+    }
+
+    .memory-btn-preview:hover {
+      background-color: #5a32a3;
+    }
+
+    .theme-btn-preview {
+      background-color: var(--primary);
+      color: white;
+      border: 2px solid white;
+    }
+
+    /* Code Block Styling */
+    .code-container {
+      position: relative;
+      background-color: #282c34;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #1e2227;
+      padding: 0.75rem 1rem;
+      color: #abb2bf;
+      font-family: 'Fira Code', monospace;
+      font-size: clamp(0.8rem, 2vw, 0.9rem);
+    }
+
+    .copy-btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 0.5rem 1rem;
+      font-size: clamp(0.8rem, 2vw, 0.9rem);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      min-height: 36px;
+    }
+
+    .copy-btn:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    .copy-btn.copied {
+      background-color: var(--success);
+    }
+
+    pre {
+      margin: 0;
+      padding: 1rem;
+      overflow-x: auto;
+      font-size: clamp(0.85rem, 2vw, 0.95rem);
+    }
+
+    code {
+      font-family: 'Fira Code', monospace;
+      line-height: 1.5;
+    }
+
+    /* Syntax highlighting */
+    .token.comment,
+    .token.prolog,
+    .token.doctype,
+    .token.cdata {
+      color: #5c6370;
+      font-style: italic;
+    }
+
+    .token.punctuation {
+      color: #abb2bf;
+    }
+
+    .token.property,
+    .token.tag,
+    .token.boolean,
+    .token.number,
+    .token.constant,
+    .token.symbol,
+    .token.deleted {
+      color: #d19a66;
+    }
+
+    .token.selector,
+    .token.attr-name,
+    .token.string,
+    .token.char,
+    .token.builtin,
+    .token.inserted {
+      color: #98c379;
+    }
+
+    .token.operator,
+    .token.entity,
+    .token.url,
+    .language-css .token.string,
+    .style .token.string {
+      color: #56b6c2;
+    }
+
+    .token.atrule,
+    .token.attr-value,
+    .token.keyword {
+      color: #c678dd;
+    }
+
+    .token.function,
+    .token.class-name {
+      color: #61afef;
+    }
+
+    .token.regex,
+    .token.important,
+    .token.variable {
+      color: #e06c75;
+    }
+
+    /* Notes & Tips */
+    .note {
+      background-color: #e7f5ff;
+      border-left: 4px solid var(--primary);
+      padding: 1.25rem;
+      margin: 1.5rem 0;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .note h3 {
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--dark);
+    }
+
+    .note i {
+      color: var(--primary);
+    }
+
+    .note.performance {
+      background-color: #e3f2fd;
+      border-left-color: #2196f3;
+    }
+
+    .note.performance i {
+      color: #2196f3;
+    }
+
+    .note.best-practices {
+      background-color: #e8f5e9;
+      border-left-color: #4caf50;
+    }
+
+    .note.best-practices i {
+      color: #4caf50;
+    }
+
+    .note.warning {
+      background-color: #fff3e0;
+      border-left-color: #ff9800;
+    }
+
+    .note.warning i {
+      color: #ff9800;
+    }
+
+    /* Browser Compatibility */
+    .compatibility {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin: 1rem 0;
+    }
+
+    .browser {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
+      font-weight: 500;
+      font-size: clamp(0.8rem, 2vw, 0.9rem);
+    }
+
+    .browser.supported {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+
+    .browser.partial {
+      background-color: #fff8e1;
+      color: #ff8f00;
+    }
+
+    /* Usage Examples - Responsive Grid */
+    .usage-examples {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .example {
+      background-color: var(--card-bg);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      transition: transform 0.3s ease;
+    }
+
+    .example:hover {
+      transform: translateY(-5px);
+    }
+
+    .example-header {
+      background-color: var(--dark);
+      color: white;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .example-content {
+      padding: 1.25rem;
+    }
+
+    /* Footer - Responsive Layout */
+    footer {
+      background-color: var(--dark);
+      color: white;
+      padding: 2rem 0 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .footer-content {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .footer-column h3 {
+      color: white;
+      margin-bottom: 1rem;
+      font-size: clamp(1.1rem, 3vw, 1.25rem);
+      position: relative;
+      padding-bottom: 0.5rem;
+    }
+
+    .footer-column h3::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 40px;
+      height: 3px;
+      background-color: var(--primary);
+    }
+
+    .footer-links {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-links a {
+      color: #adb5bd;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.3s ease;
+      font-size: clamp(0.9rem, 2vw, 1rem);
+    }
+
+    .footer-links a:hover {
+      color: white;
+      text-decoration: none;
+      transform: translateX(5px);
+    }
+
+    .footer-links a i {
+      width: 20px;
+      text-align: center;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+
+    .social-links a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background-color: rgba(255,255,255,0.1);
+      border-radius: 50%;
+      color: white;
+      transition: all 0.3s ease;
+    }
+
+    .social-links a:hover {
+      background-color: var(--primary);
+      transform: translateY(-3px);
+    }
+
+    .copyright {
+      text-align: center;
+      padding-top: 1.5rem;
+      margin-top: 1.5rem;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      color: #adb5bd;
+      font-size: clamp(0.8rem, 2vw, 0.9rem);
+    }
+
+    /* Responsive Design - Breakpoints */
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+
+      .header-content {
+        flex-direction: row;
+      }
+
+      .nav-links {
+        position: fixed;
+        top: 70px;
+        left: 0;
+        width: 100%;
+        background-color: var(--dark);
+        flex-direction: column;
+        align-items: center;
+        padding: 1rem 0;
+        gap: 0;
+        transform: translateY(-150%);
+        transition: transform 0.3s ease;
+        z-index: 100;
+      }
+
+      .nav-links.active {
+        transform: translateY(0);
+      }
+
+      .nav-links a {
+        width: 100%;
+        text-align: center;
+        padding: 0.75rem;
+      }
+
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .calculator-demo {
+        min-height: 180px;
+        padding: 1.5rem 1rem;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .container {
+        padding: 0.75rem;
+      }
+
+      h1 {
+        margin-bottom: 1rem;
+      }
+
+      .usage-examples {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-content {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    .delay-1 { animation-delay: 0.2s; }
+    .delay-2 { animation-delay: 0.4s; }
+    .delay-3 { animation-delay: 0.6s; }
+
+    /* Utility Classes */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem 1.25rem;
+      background-color: var(--primary);
+      color: white;
+      border-radius: 4px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      gap: 0.5rem;
+      text-decoration: none;
+      min-height: 44px;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header>
+    <div class="header-content">
+      <div class="logo">
+        <i class="fas fa-calculator"></i>
+        <span>SciCalc Pro Tutorial</span>
+      </div>
+      <button class="mobile-menu-toggle" id="mobileMenuToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+      <nav class="nav-links" id="navLinks">
+        <a href="#"><i class="fas fa-home"></i> Home</a>
+        <a href="#"><i class="fas fa-info-circle"></i> About</a>
+        <a href="#"><i class="fas fa-envelope"></i> Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="container">
+    <h1 class="fade-in">Advanced Scientific Calculator Tutorial</h1>
+    <p class="note fade-in delay-1">
+      <strong><i class="fas fa-lightbulb"></i> Professional Tip:</strong> This scientific calculator demonstrates modern web development techniques with pure JavaScript, 
+      CSS Grid layout, and responsive design - perfect for educational and professional applications.
+    </p>
+
+    <!-- Live Demo -->
+    <section class="fade-in delay-1">
+      <h2><i class="fas fa-play-circle"></i> Live Demo</h2>
+      <div class="calculator-demo card">
+        <div class="calculator-preview">
+          <div class="display-preview">
+            <div class="history-preview" id="historyPreview"></div>
+            <div class="current-preview" id="currentPreview">0</div>
+          </div>
+
+          <div class="button-grid-preview">
+            <button class="btn-preview func-btn-preview">sin</button>
+            <button class="btn-preview func-btn-preview">cos</button>
+            <button class="btn-preview func-btn-preview">tan</button>
+            <button class="btn-preview func-btn-preview">x^y</button>
+            <button class="btn-preview func-btn-preview">√</button>
+            
+            <button class="btn-preview func-btn-preview">sin⁻¹</button>
+            <button class="btn-preview func-btn-preview">cos⁻¹</button>
+            <button class="btn-preview func-btn-preview">tan⁻¹</button>
+            <button class="btn-preview func-btn-preview">(</button>
+            <button class="btn-preview func-btn-preview">)</button>
+            
+            <button class="btn-preview func-btn-preview">log</button>
+            <button class="btn-preview func-btn-preview">ln</button>
+            <button class="btn-preview func-btn-preview">e^x</button>
+            <button class="btn-preview func-btn-preview">π</button>
+            <button class="btn-preview func-btn-preview">e</button>
+            
+            <button class="btn-preview func-btn-preview">10^x</button>
+            <button class="btn-preview func-btn-preview">x!</button>
+            <button class="btn-preview func-btn-preview">%</button>
+            <button class="btn-preview func-btn-preview">1/x</button>
+            <button class="btn-preview func-btn-preview">|x|</button>
+          </div>
+
+          <div class="button-grid-preview">
+            <button class="btn-preview num-btn-preview">7</button>
+            <button class="btn-preview num-btn-preview">8</button>
+            <button class="btn-preview num-btn-preview">9</button>
+            <button class="btn-preview operator-btn-preview">÷</button>
+            <button class="btn-preview clear-btn-preview">C</button>
+            
+            <button class="btn-preview num-btn-preview">4</button>
+            <button class="btn-preview num-btn-preview">5</button>
+            <button class="btn-preview num-btn-preview">6</button>
+            <button class="btn-preview operator-btn-preview">×</button>
+            <button class="btn-preview clear-btn-preview">⌫</button>
+            
+            <button class="btn-preview num-btn-preview">1</button>
+            <button class="btn-preview num-btn-preview">2</button>
+            <button class="btn-preview num-btn-preview">3</button>
+            <button class="btn-preview operator-btn-preview">-</button>
+            <button class="btn-preview equals-btn-preview">=</button>
+            
+            <button class="btn-preview num-btn-preview">0</button>
+            <button class="btn-preview num-btn-preview">.</button>
+            <button class="btn-preview num-btn-preview">±</button>
+            <button class="btn-preview operator-btn-preview">+</button>
+          </div>
+
+          <div class="footer-buttons-preview">
+            <button class="btn-preview memory-btn-preview">MR</button>
+            <button class="btn-preview memory-btn-preview">MC</button>
+            <button class="btn-preview memory-btn-preview">M+</button>
+            <button class="btn-preview memory-btn-preview">M-</button>
+            <button class="btn-preview theme-btn-preview">
+              <i class="fas fa-moon"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Implementation -->
+    <section class="fade-in delay-2">
+      <h2><i class="fas fa-code"></i> Implementation Details</h2>
+      <div class="card">
+        <p>This calculator uses modern web technologies for optimal performance and flexibility:</p>
+        
+        <div class="note performance">
+          <h3><i class="fas fa-tachometer-alt"></i> Why This Approach?</h3>
+          <ul>
+            <li><strong>Pure JavaScript</strong> - No external dependencies or libraries required</li>
+            <li><strong>CSS Grid Layout</strong> - Perfectly aligned buttons with minimal code</li>
+            <li><strong>Responsive Design</strong> - Works on all device sizes</li>
+            <li><strong>Keyboard Support</strong> - Full keyboard accessibility</li>
+            <li><strong>Memory Functions</strong> - MR, MC, M+, M- operations</li>
+          </ul>
+        </div>
+
+        <h3><i class="fas fa-cogs"></i> Technical Breakdown</h3>
+        <ol>
+          <li>
+            <strong>Display System</strong>: Dual display showing both current input and calculation history
+          </li>
+          <li>
+            <strong>Math Evaluation</strong>: Uses JavaScript's <code>eval()</code> with safety checks and expression translation
+          </li>
+          <li>
+            <strong>Scientific Functions</strong>: Implements trigonometry, logarithms, factorials, and constants
+          </li>
+          <li>
+            <strong>Theme Switching</strong>: Light/dark mode toggle with CSS variables
+          </li>
+          <li>
+            <strong>Error Handling</strong>: Graceful error recovery and user feedback
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Complete Code -->
+    <section class="fade-in delay-3">
+      <h2><i class="fas fa-file-code"></i> Complete Implementation</h2>
+      <div class="card">
+        <p>Copy-paste ready code for your projects:</p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>calculator.html</span>
+            <button class="copy-btn" onclick="copyCode(this)">
+              <i class="far fa-copy"></i> Copy Code
+            </button>
+          </div>
+          <pre><code><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>!DOCTYPE html</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>html</span> <span class="token attr-name">lang</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>en<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>head</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>meta</span> <span class="token attr-name">charset</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>UTF-8<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>meta</span> <span class="token attr-name">name</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>viewport<span class="token punctuation">"</span></span> <span class="token attr-name">content</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>width=device-width, initial-scale=1.0<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>title</span><span class="token punctuation">&gt;</span></span>SciCalc Pro<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>title</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>link</span> <span class="token attr-name">rel</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>stylesheet<span class="token punctuation">"</span></span> <span class="token attr-name">href</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>style</span><span class="token punctuation">&gt;</span></span>
+        <span class="token comment">/* Color Variables */</span>
+        <span class="token selector">:root</span> <span class="token punctuation">{</span>
+            <span class="token property">--primary</span><span class="token punctuation">:</span> <span class="token hexcode">#3498db</span><span class="token punctuation">;</span>
+            <span class="token property">--display-bg</span><span class="token punctuation">:</span> <span class="token hexcode">#f8f9fa</span><span class="token punctuation">;</span>
+            <span class="token property">--btn-bg</span><span class="token punctuation">:</span> <span class="token hexcode">#e9ecef</span><span class="token punctuation">;</span>
+            <span class="token property">--btn-hover</span><span class="token punctuation">:</span> <span class="token hexcode">#dee2e6</span><span class="token punctuation">;</span>
+            <span class="token property">--operator</span><span class="token punctuation">:</span> <span class="token hexcode">#fd7e14</span><span class="token punctuation">;</span>
+            <span class="token property">--operator-hover</span><span class="token punctuation">:</span> <span class="token hexcode">#e8590c</span><span class="token punctuation">;</span>
+            <span class="token property">--equals</span><span class="token punctuation">:</span> <span class="token hexcode">#28a745</span><span class="token punctuation">;</span>
+            <span class="token property">--equals-hover</span><span class="token punctuation">:</span> <span class="token hexcode">#218838</span><span class="token punctuation">;</span>
+            <span class="token property">--clear</span><span class="token punctuation">:</span> <span class="token hexcode">#dc3545</span><span class="token punctuation">;</span>
+            <span class="token property">--clear-hover</span><span class="token punctuation">:</span> <span class="token hexcode">#c82333</span><span class="token punctuation">;</span>
+            <span class="token property">--text-dark</span><span class="token punctuation">:</span> <span class="token hexcode">#212529</span><span class="token punctuation">;</span>
+            <span class="token property">--text-light</span><span class="token punctuation">:</span> <span class="token hexcode">#f8f9fa</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">/* Base Styles */</span>
+        <span class="token selector">*</span> <span class="token punctuation">{</span>
+            <span class="token property">margin</span><span class="token punctuation">:</span> 0<span class="token punctuation">;</span>
+            <span class="token property">padding</span><span class="token punctuation">:</span> 0<span class="token punctuation">;</span>
+            <span class="token property">box-sizing</span><span class="token punctuation">:</span> border-box<span class="token punctuation">;</span>
+            <span class="token property">font-family</span><span class="token punctuation">:</span> <span class="token string">'Segoe UI'</span><span class="token punctuation">,</span> Tahoma<span class="token punctuation">,</span> Geneva<span class="token punctuation">,</span> Verdana<span class="token punctuation">,</span> sans-serif<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token selector">body</span> <span class="token punctuation">{</span>
+            <span class="token property">background-color</span><span class="token punctuation">:</span> <span class="token hexcode">#f1f3f5</span><span class="token punctuation">;</span>
+            <span class="token property">display</span><span class="token punctuation">:</span> flex<span class="token punctuation">;</span>
+            <span class="token property">justify-content</span><span class="token punctuation">:</span> center<span class="token punctuation">;</span>
+            <span class="token property">align-items</span><span class="token punctuation">:</span> center<span class="token punctuation">;</span>
+            <span class="token property">min-height</span><span class="token punctuation">:</span> 100vh<span class="token punctuation">;</span>
+            <span class="token property">padding</span><span class="token punctuation">:</span> 20px<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token selector">.calculator</span> <span class="token punctuation">{</span>
+            <span class="token property">width</span><span class="token punctuation">:</span> 340px<span class="token punctuation">;</span>
+            <span class="token property">background-color</span><span class="token punctuation">:</span> <span class="token function">var</span><span class="token punctuation">(</span>--primary<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token property">border-radius</span><span class="token punctuation">:</span> 10px<span class="token punctuation">;</span>
+            <span class="token property">padding</span><span class="token punctuation">:</span> 25px<span class="token punctuation">;</span>
+            <span class="token property">box-shadow</span><span class="token punctuation">:</span> 0 10px 25px <span class="token function">rgba</span><span class="token punctuation">(</span>0<span class="token punctuation">,</span> 0<span class="token punctuation">,</span> 0<span class="token punctuation">,</span> 0.2<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">/* Display Area */</span>
+        <span class="token selector">.display</span> <span class="token punctuation">{</span>
+            <span class="token property">background-color</span><span class="token punctuation">:</span> <span class="token function">var</span><span class="token punctuation">(</span>--display-bg<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token property">border-radius</span><span class="token punctuation">:</span> 5px<span class="token punctuation">;</span>
+            <span class="token property">padding</span><span class="token punctuation">:</span> 20px<span class="token punctuation">;</span>
+            <span class="token property">margin-bottom</span><span class="token punctuation">:</span> 20px<span class="token punctuation">;</span>
+            <span class="token property">text-align</span><span class="token punctuation">:</span> right<span class="token punctuation">;</span>
+            <span class="token property">min-height</span><span class="token punctuation">:</span> 100px<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token selector">.history</span> <span class="token punctuation">{</span>
+            <span class="token property">font-size</span><span class="token punctuation">:</span> 1.1rem<span class="token punctuation">;</span>
+            <span class="token property">color</span><span class="token punctuation">:</span> <span class="token hexcode">#6c757d</span><span class="token punctuation">;</span>
+            <span class="token property">margin-bottom</span><span class="token punctuation">:</span> 10px<span class="token punctuation">;</span>
+            <span class="token property">min-height</span><span class="token punctuation">:</span> 20px<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token selector">.current</span> <span class="token punctuation">{</span>
+            <span class="token property">font-size</span><span class="token punctuation">:</span> 2.2rem<span class="token punctuation">;</span>
+            <span class="token property">font-weight</span><span class="token punctuation">:</span> 600<span class="token punctuation">;</span>
+            <span class="token property">color</span><span class="token punctuation">:</span> <span class="token function">var</span><span class="token punctuation">(</span>--text-dark<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">/* Button Grid */</span>
+        <span class="token selector">.button-grid</span> <span class="token punctuation">{</span>
+            <span class="token property">display</span><span class="token punctuation">:</span> grid<span class="token punctuation">;</span>
+            <span class="token property">grid-template-columns</span><span class="token punctuation">:</span> <span class="token function">repeat</span><span class="token punctuation">(</span>5<span class="token punctuation">,</span> 1fr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token property">gap</span><span class="token punctuation">:</span> 10px<span class="token punctuation">;</span>
+            <span class="token property">margin-bottom</span><span class="token punctuation">:</span> 15px<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">/* Button Styles */</span>
+        <span class="token selector">.btn</span> <span class="token punctuation">{</span>
+            <span class="token property">border</span><span class="token punctuation">:</span> none<span class="token punctuation">;</span>
+            <span class="token property">border-radius</span><span class="token punctuation">:</span> 5px<span class="token punctuation">;</span>
+            <span class="token property">padding</span><span class="token punctuation">:</span> 15px 0<span class="token punctuation">;</span>
+            <span class="token property">font-size</span><span class="token punctuation">:</span> 1.2rem<span class="token punctuation">;</span>
+            <span class="token property">font-weight</span><span class="token punctuation">:</span> 500<span class="token punctuation">;</span>
+            <span class="token property">cursor</span><span class="token punctuation">:</span> pointer<span class="token punctuation">;</span>
+            <span class="token property">display</span><span class="token punctuation">:</span> flex<span class="token punctuation">;</span>
+            <span class="token property">justify-content</span><span class="token punctuation">:</span> center<span class="token punctuation">;</span>
+            <span class="token property">align-items</span><span class="token punctuation">:</span> center<span class="token punctuation">;</span>
+            <span class="token property">transition</span><span class="token punctuation">:</span> all 0.2s<span class="token punctuation">;</span>
+            <span class="token property">box-shadow</span><span class="token punctuation">:</span> 0 2px 5px <span class="token function">rgba</span><span class="token punctuation">(</span>0<span class="token punctuation">,</span> 0<span class="token punctuation">,</span> 0<span class="token punctuation">,</span> 0.1<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">/* Button Types */</span>
+        <span class="token selector">.num-btn</span> <span class="token punctuation">{</span>
+            <span class="token property">background-color</span><span class="token punctuation">:</span> <span class="token function">var</span><span class="token punctuation">(</span>--btn-bg<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token property">color</span><span class="token punctuation">:</span> <span class="token function">var</span><span class="token punctuation">(</span>--text-dark<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token selector">.num-btn:hover</span> <span class="token punctuation">{</span>
+            <span class="token property">background-color</span><span class="token punctuation">:</span> <span class="token function">var</span><span class="token punctuation">(</span>--btn-hover<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token selector">.operator-btn</span> <span class="token punctuation">{</span>
+            <span class="token property">background-color</span><span class="token punctuation">:</span> <span class="token function">var</span><span class="token punctuation">(</span>--operator<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token property">color</span><span class="token punctuation">:</span> white<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token selector">.operator-btn:hover</span> <span class="token punctuation">{</span>
+            <span class="token property">background-color</span><span class="token punctuation">:</span> <span class="token function">var</span><span class="token punctuation">(</span>--operator-hover<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token selector">.equals-btn</span> <span class="token punctuation">{</span>
+            <span class="token property">background-color</span><span class="token punctuation">:</span> <span class="token function">var</span><span class="token punctuation">(</span>--equals<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token property">color</span><span class="token punctuation">:</span> white<span class="token punctuation">;</span>
+            <span class="token property">grid-row</span><span class="token punctuation">:</span> span 2<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token selector">.equals-btn:hover</span> <span class="token punctuation">{</span>
+            <span class="token property">background-color</span><span class="token punctuation">:</span> <span class="token function">var</span><span class="token punctuation">(</span>--equals-hover<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token selector">.clear-btn</span> <span class="token punctuation">{</span>
+            <span class="token property">background-color</span><span class="token punctuation">:</span> <span class="token function">var</span><span class="token punctuation">(</span>--clear<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token property">color</span><span class="token punctuation">:</span> white<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token selector">.clear-btn:hover</span> <span class="token punctuation">{</span>
+            <span class="token property">background-color</span><span class="token punctuation">:</span> <span class="token function">var</span><span class="token punctuation">(</span>--clear-hover<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token selector">.func-btn</span> <span class="token punctuation">{</span>
+            <span class="token property">background-color</span><span class="token punctuation">:</span> <span class="token hexcode">#17a2b8</span><span class="token punctuation">;</span>
+            <span class="token property">color</span><span class="token punctuation">:</span> white<span class="token punctuation">;</span>
+            <span class="token property">font-size</span><span class="token punctuation">:</span> 1rem<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token selector">.func-btn:hover</span> <span class="token punctuation">{</span>
+            <span class="token property">background-color</span><span class="token punctuation">:</span> <span class="token hexcode">#138496</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">/* Footer Buttons */</span>
+        <span class="token selector">.footer-buttons</span> <span class="token punctuation">{</span>
+            <span class="token property">display</span><span class="token punctuation">:</span> grid<span class="token punctuation">;</span>
+            <span class="token property">grid-template-columns</span><span class="token punctuation">:</span> <span class="token function">repeat</span><span class="token punctuation">(</span>5<span class="token punctuation">,</span> 1fr<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token property">gap</span><span class="token punctuation">:</span> 10px<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token selector">.memory-btn</span> <span class="token punctuation">{</span>
+            <span class="token property">background-color</span><span class="token punctuation">:</span> <span class="token hexcode">#6f42c1</span><span class="token punctuation">;</span>
+            <span class="token property">color</span><span class="token punctuation">:</span> white<span class="token punctuation">;</span>
+            <span class="token property">font-size</span><span class="token punctuation">:</span> 1rem<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token selector">.memory-btn:hover</span> <span class="token punctuation">{</span>
+            <span class="token property">background-color</span><span class="token punctuation">:</span> <span class="token hexcode">#5a32a3</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token selector">.theme-btn</span> <span class="token punctuation">{</span>
+            <span class="token property">background-color</span><span class="token punctuation">:</span> <span class="token function">var</span><span class="token punctuation">(</span>--primary<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token property">color</span><span class="token punctuation">:</span> white<span class="token punctuation">;</span>
+            <span class="token property">border</span><span class="token punctuation">:</span> 2px solid white<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>style</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>head</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>body</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculator<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+        <span class="token comment">&lt;!-- Display --&gt;</span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>display<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>history<span class="token punctuation">"</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>history<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>current<span class="token punctuation">"</span></span> <span class="token attr-name">id</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>current<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>0<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+
+        <span class="token comment">&lt;!-- Scientific Buttons --&gt;</span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>button-grid scientific-buttons<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn func-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('sin(')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>sin<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn func-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('cos(')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>cos<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn func-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('tan(')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>tan<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn func-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('^')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>x^y<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn func-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('√(')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>√<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn func-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('asin(')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>sin⁻¹<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn func-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('acos(')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>cos⁻¹<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn func-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('atan(')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>tan⁻¹<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn func-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('(')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>(<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn func-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate(')')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>)<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn func-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('log(')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>log<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn func-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('ln(')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>ln<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn func-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('e^(')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>e^x<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn func-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('π')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>π<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn func-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('e')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>e<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn func-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('10^(')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>10^x<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn func-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>factorial()<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>x!<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn func-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('%')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>%<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn func-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('1/')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>1/x<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn func-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('abs(')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>|x|<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+
+        <span class="token comment">&lt;!-- Standard Buttons --&gt;</span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>button-grid standard-buttons<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn num-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('7')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>7<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn num-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('8')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>8<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn num-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('9')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>9<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn operator-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('/')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>÷<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn clear-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>clearAll()<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>C<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn num-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('4')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>4<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn num-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('5')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>5<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn num-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('6')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>6<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn operator-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('*')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>×<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn clear-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>backspace()<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>⌫<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn num-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('1')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>1<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn num-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('2')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>2<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn num-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('3')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>3<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn operator-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('-')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn equals-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('=')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>=<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn num-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('0')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>0<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn num-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('.')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>.<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn num-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>toggleSign()<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>±<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn operator-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>calculate('+')<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+
+        <span class="token comment">&lt;!-- Footer Buttons --&gt;</span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>div</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>footer-buttons<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn memory-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>memoryRecall()<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>MR<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn memory-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>memoryClear()<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>MC<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn memory-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>memoryAdd()<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>M+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn memory-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>memorySubtract()<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>M-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>button</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>btn theme-btn<span class="token punctuation">"</span></span> <span class="token attr-name">onclick</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>toggleTheme()<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span>
+                <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>i</span> <span class="token attr-name">class</span><span class="token attr-value"><span class="token punctuation">=</span><span class="token punctuation">"</span>fas fa-moon<span class="token punctuation">"</span></span><span class="token punctuation">&gt;</span></span><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>i</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>button</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>div</span><span class="token punctuation">&gt;</span></span>
+
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>script</span><span class="token punctuation">&gt;</span></span>
+        <span class="token comment">// Calculator state</span>
+        <span class="token keyword">let</span> currentInput <span class="token operator">=</span> <span class="token string">'0'</span><span class="token punctuation">;</span>
+        <span class="token keyword">let</span> calculation <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">;</span>
+        <span class="token keyword">let</span> memory <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token keyword">let</span> isDarkTheme <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+
+        <span class="token comment">// DOM elements</span>
+        <span class="token keyword">const</span> currentDisplay <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">'current'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token keyword">const</span> historyDisplay <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">'history'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+        <span class="token comment">// Update display</span>
+        <span class="token keyword">function</span> <span class="token function">updateDisplay</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            currentDisplay<span class="token punctuation">.</span>textContent <span class="token operator">=</span> currentInput<span class="token punctuation">;</span>
+            historyDisplay<span class="token punctuation">.</span>textContent <span class="token operator">=</span> calculation<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// Handle number and operator inputs</span>
+        <span class="token keyword">function</span> <span class="token function">calculate</span><span class="token punctuation">(</span><span class="token parameter">value</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>value <span class="token operator">===</span> <span class="token string">'='</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token keyword">try</span> <span class="token punctuation">{</span>
+                    <span class="token comment">// Replace display symbols with JavaScript operators</span>
+                    <span class="token keyword">let</span> expression <span class="token operator">=</span> calculation <span class="token operator">+</span> currentInput<span class="token punctuation">;</span>
+                    expression <span class="token operator">=</span> expression<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token regex"><span class="token regex-delimiter">/</span><span class="token regex-source language-regex">×</span><span class="token regex-delimiter">/</span><span class="token regex-flags">g</span></span><span class="token punctuation">,</span> <span class="token string">'*'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token regex"><span class="token regex-delimiter">/</span><span class="token regex-source language-regex">÷</span><span class="token regex-delimiter">/</span><span class="token regex-flags">g</span></span><span class="token punctuation">,</span> <span class="token string">'/'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    
+                    <span class="token comment">// Handle percentage calculations</span>
+                    expression <span class="token operator">=</span> expression<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token regex"><span class="token regex-delimiter">/</span><span class="token regex-source language-regex">(\d+)%</span><span class="token regex-delimiter">/</span><span class="token regex-flags">g</span></span><span class="token punctuation">,</span> <span class="token string">'($1/100)'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    
+                    <span class="token comment">// Evaluate the expression</span>
+                    <span class="token keyword">const</span> result <span class="token operator">=</span> <span class="token function">eval</span><span class="token punctuation">(</span>expression<span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    currentInput <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+                    calculation <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span>error<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    currentInput <span class="token operator">=</span> <span class="token string">'Error'</span><span class="token punctuation">;</span>
+                    calculation <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token regex"><span class="token regex-delimiter">/</span><span class="token regex-source language-regex">[+\-*/^]</span><span class="token regex-delimiter">/</span></span><span class="token punctuation">.</span><span class="token function">test</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                <span class="token comment">// Handle operators</span>
+                calculation <span class="token operator">=</span> calculation <span class="token operator">+</span> currentInput <span class="token operator">+</span> value<span class="token punctuation">;</span>
+                currentInput <span class="token operator">=</span> <span class="token string">'0'</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>value <span class="token operator">===</span> <span class="token string">'π'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                currentInput <span class="token operator">=</span> Math<span class="token punctuation">.</span><span class="token constant">PI</span><span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>value <span class="token operator">===</span> <span class="token string">'e'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                currentInput <span class="token operator">=</span> Math<span class="token punctuation">.</span><span class="token constant">E</span><span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>currentInput <span class="token operator">===</span> <span class="token string">'0'</span> <span class="token operator">||</span> currentInput <span class="token operator">===</span> <span class="token string">'Error'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                currentInput <span class="token operator">=</span> value<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                currentInput <span class="token operator">+=</span> value<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            
+            <span class="token function">updateDisplay</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// Clear all</span>
+        <span class="token keyword">function</span> <span class="token function">clearAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            currentInput <span class="token operator">=</span> <span class="token string">'0'</span><span class="token punctuation">;</span>
+            calculation <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">;</span>
+            <span class="token function">updateDisplay</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// Backspace</span>
+        <span class="token keyword">function</span> <span class="token function">backspace</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>currentInput<span class="token punctuation">.</span>length <span class="token operator">===</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                currentInput <span class="token operator">=</span> <span class="token string">'0'</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                currentInput <span class="token operator">=</span> currentInput<span class="token punctuation">.</span><span class="token function">slice</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token function">updateDisplay</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// Toggle sign</span>
+        <span class="token keyword">function</span> <span class="token function">toggleSign</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>currentInput<span class="token punctuation">.</span><span class="token function">startsWith</span><span class="token punctuation">(</span><span class="token string">'-'</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                currentInput <span class="token operator">=</span> currentInput<span class="token punctuation">.</span><span class="token function">substring</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                currentInput <span class="token operator">=</span> <span class="token string">'-'</span> <span class="token operator">+</span> currentInput<span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token function">updateDisplay</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// Factorial</span>
+        <span class="token keyword">function</span> <span class="token function">factorial</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token keyword">let</span> num <span class="token operator">=</span> <span class="token function">parseFloat</span><span class="token punctuation">(</span>currentInput<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>num <span class="token operator">===</span> <span class="token number">0</span> <span class="token operator">||</span> num <span class="token operator">===</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                currentInput <span class="token operator">=</span> <span class="token string">'1'</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+                <span class="token keyword">let</span> result <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+                <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">let</span> i <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">;</span> i <span class="token operator">&lt;=</span> num<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+                    result <span class="token operator">*=</span> i<span class="token punctuation">;</span>
+                <span class="token punctuation">}</span>
+                currentInput <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token punctuation">}</span>
+            <span class="token function">updateDisplay</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// Memory functions</span>
+        <span class="token keyword">function</span> <span class="token function">memoryRecall</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            currentInput <span class="token operator">=</span> memory<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token function">updateDisplay</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">function</span> <span class="token function">memoryClear</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            memory <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">function</span> <span class="token function">memoryAdd</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            memory <span class="token operator">+=</span> <span class="token function">parseFloat</span><span class="token punctuation">(</span>currentInput<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token keyword">function</span> <span class="token function">memorySubtract</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            memory <span class="token operator">-=</span> <span class="token function">parseFloat</span><span class="token punctuation">(</span>currentInput<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// Toggle theme</span>
+        <span class="token keyword">function</span> <span class="token function">toggleTheme</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            isDarkTheme <span class="token operator">=</span> <span class="token operator">!</span>isDarkTheme<span class="token punctuation">;</span>
+            document<span class="token punctuation">.</span>body<span class="token punctuation">.</span>classList<span class="token punctuation">.</span><span class="token function">toggle</span><span class="token punctuation">(</span><span class="token string">'dark-theme'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            
+            <span class="token comment">// Update theme button icon</span>
+            <span class="token keyword">const</span> themeIcon <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">querySelector</span><span class="token punctuation">(</span><span class="token string">'.theme-btn i'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            themeIcon<span class="token punctuation">.</span>className <span class="token operator">=</span> isDarkTheme <span class="token operator">?</span> <span class="token string">'fas fa-sun'</span> <span class="token operator">:</span> <span class="token string">'fas fa-moon'</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+
+        <span class="token comment">// Initialize calculator</span>
+        <span class="token function">updateDisplay</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>script</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>body</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>html</span><span class="token punctuation">&gt;</span></span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- JavaScript Implementation -->
+    <section class="fade-in delay-3">
+      <h2><i class="fas fa-file-code"></i> JavaScript Implementation</h2>
+      <div class="card">
+        <p>The calculator's logic is implemented in pure JavaScript:</p>
+        <div class="code-container">
+          <div class="code-header">
+            <span>calculator.js</span>
+            <button class="copy-btn" onclick="copyCode(this)">
+              <i class="far fa-copy"></i> Copy Code
+            </button>
+          </div>
+          <pre><code><span class="token comment">// Calculator state</span>
+<span class="token keyword">let</span> currentInput <span class="token operator">=</span> <span class="token string">'0'</span><span class="token punctuation">;</span>
+<span class="token keyword">let</span> calculation <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">;</span>
+<span class="token keyword">let</span> memory <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token keyword">let</span> isDarkTheme <span class="token operator">=</span> <span class="token boolean">false</span><span class="token punctuation">;</span>
+
+<span class="token comment">// DOM elements</span>
+<span class="token keyword">const</span> currentDisplay <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">'current'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">const</span> historyDisplay <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">getElementById</span><span class="token punctuation">(</span><span class="token string">'history'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+
+<span class="token comment">// Update display</span>
+<span class="token keyword">function</span> <span class="token function">updateDisplay</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    currentDisplay<span class="token punctuation">.</span>textContent <span class="token operator">=</span> currentInput<span class="token punctuation">;</span>
+    historyDisplay<span class="token punctuation">.</span>textContent <span class="token operator">=</span> calculation<span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Handle number and operator inputs</span>
+<span class="token keyword">function</span> <span class="token function">calculate</span><span class="token punctuation">(</span><span class="token parameter">value</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>value <span class="token operator">===</span> <span class="token string">'='</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">try</span> <span class="token punctuation">{</span>
+            <span class="token comment">// Replace display symbols with JavaScript operators</span>
+            <span class="token keyword">let</span> expression <span class="token operator">=</span> calculation <span class="token operator">+</span> currentInput<span class="token punctuation">;</span>
+            expression <span class="token operator">=</span> expression<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token regex"><span class="token regex-delimiter">/</span><span class="token regex-source language-regex">×</span><span class="token regex-delimiter">/</span><span class="token regex-flags">g</span></span><span class="token punctuation">,</span> <span class="token string">'*'</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token regex"><span class="token regex-delimiter">/</span><span class="token regex-source language-regex">÷</span><span class="token regex-delimiter">/</span><span class="token regex-flags">g</span></span><span class="token punctuation">,</span> <span class="token string">'/'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            
+            <span class="token comment">// Handle percentage calculations</span>
+            expression <span class="token operator">=</span> expression<span class="token punctuation">.</span><span class="token function">replace</span><span class="token punctuation">(</span><span class="token regex"><span class="token regex-delimiter">/</span><span class="token regex-source language-regex">(\d+)%</span><span class="token regex-delimiter">/</span><span class="token regex-flags">g</span></span><span class="token punctuation">,</span> <span class="token string">'($1/100)'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            
+            <span class="token comment">// Evaluate the expression</span>
+            <span class="token keyword">const</span> result <span class="token operator">=</span> <span class="token function">eval</span><span class="token punctuation">(</span>expression<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            currentInput <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+            calculation <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">catch</span> <span class="token punctuation">(</span>error<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            currentInput <span class="token operator">=</span> <span class="token string">'Error'</span><span class="token punctuation">;</span>
+            calculation <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token regex"><span class="token regex-delimiter">/</span><span class="token regex-source language-regex">[+\-*/^]</span><span class="token regex-delimiter">/</span></span><span class="token punctuation">.</span><span class="token function">test</span><span class="token punctuation">(</span>value<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token comment">// Handle operators</span>
+        calculation <span class="token operator">=</span> calculation <span class="token operator">+</span> currentInput <span class="token operator">+</span> value<span class="token punctuation">;</span>
+        currentInput <span class="token operator">=</span> <span class="token string">'0'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>value <span class="token operator">===</span> <span class="token string">'π'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        currentInput <span class="token operator">=</span> Math<span class="token punctuation">.</span><span class="token constant">PI</span><span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>value <span class="token operator">===</span> <span class="token string">'e'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        currentInput <span class="token operator">=</span> Math<span class="token punctuation">.</span><span class="token constant">E</span><span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> <span class="token punctuation">(</span>currentInput <span class="token operator">===</span> <span class="token string">'0'</span> <span class="token operator">||</span> currentInput <span class="token operator">===</span> <span class="token string">'Error'</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        currentInput <span class="token operator">=</span> value<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        currentInput <span class="token operator">+=</span> value<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    
+    <span class="token function">updateDisplay</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Clear all</span>
+<span class="token keyword">function</span> <span class="token function">clearAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    currentInput <span class="token operator">=</span> <span class="token string">'0'</span><span class="token punctuation">;</span>
+    calculation <span class="token operator">=</span> <span class="token string">''</span><span class="token punctuation">;</span>
+    <span class="token function">updateDisplay</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Backspace</span>
+<span class="token keyword">function</span> <span class="token function">backspace</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>currentInput<span class="token punctuation">.</span>length <span class="token operator">===</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        currentInput <span class="token operator">=</span> <span class="token string">'0'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        currentInput <span class="token operator">=</span> currentInput<span class="token punctuation">.</span><span class="token function">slice</span><span class="token punctuation">(</span><span class="token number">0</span><span class="token punctuation">,</span> <span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token function">updateDisplay</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Toggle sign</span>
+<span class="token keyword">function</span> <span class="token function">toggleSign</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>currentInput<span class="token punctuation">.</span><span class="token function">startsWith</span><span class="token punctuation">(</span><span class="token string">'-'</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        currentInput <span class="token operator">=</span> currentInput<span class="token punctuation">.</span><span class="token function">substring</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        currentInput <span class="token operator">=</span> <span class="token string">'-'</span> <span class="token operator">+</span> currentInput<span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token function">updateDisplay</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Factorial</span>
+<span class="token keyword">function</span> <span class="token function">factorial</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">let</span> num <span class="token operator">=</span> <span class="token function">parseFloat</span><span class="token punctuation">(</span>currentInput<span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">if</span> <span class="token punctuation">(</span>num <span class="token operator">===</span> <span class="token number">0</span> <span class="token operator">||</span> num <span class="token operator">===</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        currentInput <span class="token operator">=</span> <span class="token string">'1'</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        <span class="token keyword">let</span> result <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">;</span>
+        <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">let</span> i <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">;</span> i <span class="token operator">&lt;=</span> num<span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            result <span class="token operator">*=</span> i<span class="token punctuation">;</span>
+        <span class="token punctuation">}</span>
+        currentInput <span class="token operator">=</span> result<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token punctuation">}</span>
+    <span class="token function">updateDisplay</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Memory functions</span>
+<span class="token keyword">function</span> <span class="token function">memoryRecall</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    currentInput <span class="token operator">=</span> memory<span class="token punctuation">.</span><span class="token function">toString</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token function">updateDisplay</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">memoryClear</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    memory <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">memoryAdd</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    memory <span class="token operator">+=</span> <span class="token function">parseFloat</span><span class="token punctuation">(</span>currentInput<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">function</span> <span class="token function">memorySubtract</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    memory <span class="token operator">-=</span> <span class="token function">parseFloat</span><span class="token punctuation">(</span>currentInput<span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Toggle theme</span>
+<span class="token keyword">function</span> <span class="token function">toggleTheme</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    isDarkTheme <span class="token operator">=</span> <span class="token operator">!</span>isDarkTheme<span class="token punctuation">;</span>
+    document<span class="token punctuation">.</span>body<span class="token punctuation">.</span>classList<span class="token punctuation">.</span><span class="token function">toggle</span><span class="token punctuation">(</span><span class="token string">'dark-theme'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    
+    <span class="token comment">// Update theme button icon</span>
+    <span class="token keyword">const</span> themeIcon <span class="token operator">=</span> document<span class="token punctuation">.</span><span class="token function">querySelector</span><span class="token punctuation">(</span><span class="token string">'.theme-btn i'</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    themeIcon<span class="token punctuation">.</span>className <span class="token operator">=</span> isDarkTheme <span class="token operator">?</span> <span class="token string">'fas fa-sun'</span> <span class="token operator">:</span> <span class="token string">'fas fa-moon'</span><span class="token punctuation">;</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment">// Initialize calculator</span>
+<span class="token function">updateDisplay</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span></code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="fade-in delay-3">
+      <h2><i class="fas fa-star"></i> Key Features</h2>
+      <div class="card">
+        <div class="usage-examples">
+          <div class="example">
+            <div class="example-header">
+              <i class="fas fa-flask"></i>
+              <h3>Scientific Functions</h3>
+            </div>
+            <div class="example-content">
+              <p>Trigonometry (sin, cos, tan), logarithms, exponents, roots, factorials, and constants (π, e).</p>
+            </div>
+          </div>
+          
+          <div class="example">
+            <div class="example-header">
+              <i class="fas fa-memory"></i>
+              <h3>Memory Operations</h3>
+            </div>
+            <div class="example-content">
+              <p>MR (Memory Recall), MC (Memory Clear), M+ (Memory Add), M- (Memory Subtract).</p>
+            </div>
+          </div>
+          
+          <div class="example">
+            <div class="example-header">
+              <i class="fas fa-mobile-alt"></i>
+              <h3>Responsive Design</h3>
+            </div>
+            <div class="example-content">
+              <p>Works on all devices from mobile phones to desktop computers.</p>
+            </div>
+          </div>
+          
+          <div class="example">
+            <div class="example-header">
+              <i class="fas fa-palette"></i>
+              <h3>Theming System</h3>
+            </div>
+            <div class="example-content">
+              <p>Toggle between light and dark themes with CSS variables.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Browser Compatibility -->
+    <section class="fade-in delay-3">
+      <h2><i class="fas fa-check-circle"></i> Browser Compatibility</h2>
+      <div class="card">
+        <p>This calculator works on all modern browsers:</p>
+        <div class="compatibility">
+          <div class="browser supported">
+            <i class="fab fa-chrome"></i>
+            <span>Chrome</span>
+          </div>
+          <div class="browser supported">
+            <i class="fab fa-firefox"></i>
+            <span>Firefox</span>
+          </div>
+          <div class="browser supported">
+            <i class="fab fa-safari"></i>
+            <span>Safari</span>
+          </div>
+          <div class="browser supported">
+            <i class="fab fa-edge"></i>
+            <span>Edge</span>
+          </div>
+          <div class="browser partial">
+            <i class="fab fa-internet-explorer"></i>
+            <span>IE 11</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-column">
+        <h3>SciCalc Pro</h3>
+        <ul class="footer-links">
+          <li><a href="#"><i class="fas fa-home"></i> Home</a></li>
+          <li><a href="#"><i class="fas fa-feather-alt"></i> Features</a></li>
+          <li><a href="#"><i class="fas fa-code"></i> Documentation</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-column">
+        <h3>Resources</h3>
+        <ul class="footer-links">
+          <li><a href="#"><i class="fas fa-book"></i> Tutorials</a></li>
+          <li><a href="#"><i class="fas fa-file-code"></i> Examples</a></li>
+          <li><a href="#"><i class="fas fa-question-circle"></i> FAQ</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-column">
+        <h3>Connect</h3>
+        <ul class="footer-links">
+          <li><a href="#"><i class="fas fa-envelope"></i> Contact</a></li>
+          <li><a href="#"><i class="fas fa-bug"></i> Report Issue</a></li>
+          <li><a href="#"><i class="fas fa-heart"></i> Contribute</a></li>
+        </ul>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-github"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-linkedin"></i></a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="copyright">
+      &copy; 2025 SciCalc Pro Tutorial. All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    // Mobile menu toggle
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const navLinks = document.getElementById('navLinks');
+    
+    mobileMenuToggle.addEventListener('click', () => {
+      navLinks.classList.toggle('active');
+    });
+
+    // Copy code functionality
+    function copyCode(button) {
+      const codeContainer = button.closest('.code-container');
+      const code = codeContainer.querySelector('code').textContent;
+      
+      navigator.clipboard.writeText(code).then(() => {
+        button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        button.classList.add('copied');
+        
+        setTimeout(() => {
+          button.innerHTML = '<i class="far fa-copy"></i> Copy Code';
+          button.classList.remove('copied');
+        }, 2000);
+      });
+    }
+
+    // Calculator preview functionality
+    const currentPreview = document.getElementById('currentPreview');
+    const historyPreview = document.getElementById('historyPreview');
+    let previewCurrentInput = '0';
+    let previewCalculation = '';
+
+    // Update preview display
+    function updatePreviewDisplay() {
+      currentPreview.textContent = previewCurrentInput;
+      historyPreview.textContent = previewCalculation;
+    }
+
+    // Handle preview button clicks
+    document.querySelectorAll('.btn-preview').forEach(button => {
+      button.addEventListener('click', () => {
+        const value = button.textContent.trim();
+        
+        if (value === 'C') {
+          previewCurrentInput = '0';
+          previewCalculation = '';
+        } else if (value === '⌫') {
+          if (previewCurrentInput.length === 1) {
+            previewCurrentInput = '0';
+          } else {
+            previewCurrentInput = previewCurrentInput.slice(0, -1);
+          }
+        } else if (value === '=') {
+          previewCalculation = '';
+          previewCurrentInput = '42'; // Example result
+        } else if (/[0-9]/.test(value)) {
+          if (previewCurrentInput === '0' || previewCurrentInput === '42') {
+            previewCurrentInput = value;
+          } else {
+            previewCurrentInput += value;
+          }
+        } else if (value === '±') {
+          if (previewCurrentInput.startsWith('-')) {
+            previewCurrentInput = previewCurrentInput.substring(1);
+          } else {
+            previewCurrentInput = '-' + previewCurrentInput;
+          }
+        } else {
+          // For other buttons, just update the display
+          previewCalculation = previewCurrentInput + ' ' + value + ' ';
+          previewCurrentInput = '0';
+        }
+        
+        updatePreviewDisplay();
+      });
+    });
+
+    // Initialize preview display
+    updatePreviewDisplay();
+  </script>
+</body>
+</html>
